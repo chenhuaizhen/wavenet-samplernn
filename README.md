@@ -15,4 +15,4 @@ samplernn:https://github.com/Unisound/SampleRNN
 based on the same principle, wavenet or samplernn can be used to generate the text using the one-hot embedding  
 in this experiment, I use a Chinese novel named "Xun Qin Ji" as training data, it contains 4119 kinds of Chinese characters except some special notations, so the size of final input matrix is [4119], much larger than 256 in previous experiments  
 and I tried to use word embedding to decrease the size of input, the result like below(the yellow line means word-embedding, the other means the orignal input(4119))  
-![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/2.jpg)
+![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/1.jpg)
