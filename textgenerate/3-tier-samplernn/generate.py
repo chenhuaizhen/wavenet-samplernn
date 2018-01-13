@@ -8,21 +8,50 @@ from model import SampleRnnModel
 batch_size = 5
 big_frame_size = 8
 frame_size = 2
-q_levels = 256
+q_levels = 4119
 rnn_type = 'GRU'
 rnn_dim = 512
 n_rnn = 1
 emb_size = 256
-rate_of_wav = 16000
-len_of_data = int(rate_of_wav * 5)
+len_of_data = 1024
 
 l2_regularization_strength = 0
 modelAdd = "Model/model.ckpt"
-saveAdd = "output.wav"
+dataAdd = "../data.txt"
+startAdd = "start.txt"
+saveAdd = "output"
 
-def generate_and_save_samples(net, infe_para, sess, length):
+def initDict(fileAdd):
+    dict = {}
+    reDict = {}
+    with open(fileAdd, "r") as file:
+        txt = file.read()
+        index = 0
+        for t in txt:
+            if (t not in dict):
+                dict[t] = index
+                reDict[index] = t
+                index += 1
+        return dict,reDict
+
+def tranToData(data,dict):
+    res = ""
+    for d in data:
+        res += dict[d]
+    return res
+
+def initStartCtx(fileAdd,dict):
+    output = []
+    with open(fileAdd,"r") as file:
+        txt = file.read()
+        for t in txt:
+            output.append(dict[t])
+    output = np.array(output).astype(np.int32)
+    return output
+
+def generate_and_save_samples(startCtx, net, infe_para, sess, length):
     samples = np.zeros((net.batch_size, length, 1), dtype='int32')
-    samples[:, :net.big_frame_size,:] = np.int32(net.q_levels//2)
+    samples[:, :net.big_frame_size,:] = startCtx
 
     final_big_s,final_s = sess.run([net.big_initial_state,net.initial_state])
     big_frame_out = None
@@ -65,14 +94,8 @@ def generate_and_save_samples(net, infe_para, sess, length):
                 np.arange(net.q_levels), p=row )
             sample_next_list.append(sample_next)
         samples[:, t] = np.array(sample_next_list).reshape([-1,1])
-    for i in range(0, net.batch_size):
-        temp = samples[i].astype(np.float32)
-        temp = temp - 128.
-        sample[i] = temp * 100
-        # samples[i] = np.ceil(32768*np.sign(temp/128)*((np.power(256,np.abs(temp/128))-1)/255)).astype(np.int16)
-    return samples
 
-data_input = tf.placeholder("float", shape=[None,len_of_data,1],name="X-input")
+    return samples
 
 def main():
     # Create coordinator.
@@ -112,11 +135,21 @@ def main():
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     saver.restore(sess, modelAdd)
 
-
+    Dict, resDict = initDict(dataAdd)
+    startCtx = initStartCtx(startAdd,Dict)
+    start = np.tile(startCtx[:net.big_frame_size],[batch_size,1])\
+                            .reshape([batch_size,net.big_frame_size,1])
     print("Start generating.")
-    result = generate_and_save_samples(net, infe_para, sess, len_of_data)
+    result = generate_and_save_samples(start, net, infe_para, sess, len_of_data)
+    result = np.reshape(result,[batch_size,len_of_data])
+    start = np.reshape(start,[batch_size,net.big_frame_size])
     for i in range(batch_size):
-        wav.write("output"+str(i)+".wav", rate_of_wav, result[i])
+        with open((saveAdd+str(i)+".txt"),"a") as file:
+            for ii in start[i]:
+                file.write(resDict[ii])
+            for ii in result[i]:
+                file.write(resDict[ii])
+
     print("Finished generating.")
     coord.request_stop()
     coord.join(threads)

@@ -116,10 +116,11 @@ class SampleRnnModel(object):
       sample_shap=[tf.shape(sample_input_sequences)[0],
       	     tf.shape(sample_input_sequences)[1]*self.emb_size,
       	     1]
-      # embedding = tf.get_variable("embedding", [self.q_levels, self.emb_size])
-      # sample_input_sequences = embedding_ops.embedding_lookup(
-      #                            embedding, tf.reshape(sample_input_sequences,[-1]))
-      sample_input_sequences = self._one_hot(tf.reshape(sample_input_sequences,[-1]))
+      embedding = tf.get_variable("embedding", [self.q_levels, self.emb_size])
+      sample_input_sequences = tf.one_hot(tf.reshape(sample_input_sequences, [-1]),
+                                          depth=self.q_levels,
+                                          dtype=tf.float32)
+      sample_input_sequences = tf.matmul(sample_input_sequences, embedding)
       sample_input_sequences = tf.reshape(sample_input_sequences,sample_shap)
      
       '''Create a convolution filter variable with the specified name and shape,

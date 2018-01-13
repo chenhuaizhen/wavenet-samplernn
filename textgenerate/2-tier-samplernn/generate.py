@@ -7,21 +7,22 @@ from model import SampleRnnModel
 
 batch_size = 5
 frame_size = 16
-q_levels = 256
+q_levels = 4119
 rnn_type = 'GRU'
 rnn_dim = 1024
 n_rnn = 3
 emb_size = 256
-rate_of_wav = 16000
-len_of_data = int(rate_of_wav * 5)
+len_of_data = 1024
 
 l2_regularization_strength = 0
 modelAdd = "Model/model.ckpt"
-saveAdd = "output.wav"
+dataAdd = "../data.txt"
+startAdd = "start.txt"
+saveAdd = "output"
 
-def generate_and_save_samples(net, infe_para, sess, length):
+def generate_and_save_samples(startCtx, net, infe_para, sess, length):
     samples = np.zeros((net.batch_size, length, 1), dtype='int32')
-    samples[:, :net.frame_size,:] = np.int32(net.q_levels//2)
+    samples[:, :net.frame_size,:] = startCtx
 
     final_s = sess.run([net.initial_state])
     frame_out = None
@@ -51,11 +52,7 @@ def generate_and_save_samples(net, infe_para, sess, length):
                 np.arange(net.q_levels), p=row )
             sample_next_list.append(sample_next)
         samples[:, t] = np.array(sample_next_list).reshape([-1,1])
-    for i in range(0, net.batch_size):
-        temp = samples[i].astype(np.float32)
-        temp = temp - 128.
-        # samples[i] = np.ceil(32768*np.sign(temp/128)*((np.power(256,np.abs(temp/128))-1)/255)).astype(np.int16)
-        samples[i] = temp * 100
+
     return samples
 
 def main():
@@ -89,11 +86,21 @@ def main():
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     saver.restore(sess, modelAdd)
 
-
+    Dict, resDict = initDict(dataAdd)
+    startCtx = initStartCtx(startAdd, Dict)
+    start = np.tile(startCtx[:net.frame_size], [batch_size, 1]) \
+        .reshape([batch_size, net.frame_size, 1])
     print("Start generating.")
-    result = generate_and_save_samples(net, infe_para, sess, len_of_data)
+    result = generate_and_save_samples(start, net, infe_para, sess, len_of_data)
+    result = np.reshape(result, [batch_size, len_of_data])
+    start = np.reshape(start, [batch_size, net.big_frame_size])
     for i in range(batch_size):
-        wav.write("output"+str(i)+".wav", rate_of_wav, result[i])
+        with open((saveAdd + str(i) + ".txt"), "a") as file:
+            for ii in start[i]:
+                file.write(resDict[ii])
+            for ii in result[i]:
+                file.write(resDict[ii])
+
     print("Finished generating.")
     coord.request_stop()
     coord.join(threads)
