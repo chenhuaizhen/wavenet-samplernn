@@ -49,9 +49,19 @@ the image below seperately means the loss curve about training with preprocessin
 ![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/2.jpg)
 
 ### samples(生成样本)
-3-tier-sampleRNN:[sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample1.wav)  
-                 [sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample2.wav)  
-                 [sample3](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample3.wav)  
+3-tier-sampleRNN:  
+[sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample1.wav)  
+[sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample2.wav)  
+[sample3](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample3.wav)  
+
+2-tier-sampleRNN:  
+[sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample1.wav)  
+[sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample2.wav)  
+[sample3](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample3.wav)  
+[sample4](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample4.wav)  
+
+wavenet:
+
 
 ## text generate(文本生成)
 基于同样的原理，也可将文本信息用0-1数组表示进行训练，本次实验采用了《寻秦记》作为训练样本，除去特殊符号其共有4119种字，可用一个大小为4119的矩阵来表示其中的任意字。由于4119比之前的256大的多，所以可以先采用“字嵌入”的方式进行大小的缩减，其效果如下图（黄线为加入字嵌入，蓝线为4119大小输入）  
