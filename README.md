@@ -10,10 +10,8 @@ samplernn:https://github.com/Unisound/SampleRNN
 
 ## piano generate(钢琴乐生成)
 ### datasets(数据来源)
-网上资料，来源于[sampleRNN_ICLR2017](https://github.com/soroushmehr/sampleRNN_ICLR2017)  
-the datasets come from [sampleRNN_ICLR2017](https://github.com/soroushmehr/sampleRNN_ICLR2017) 
-点击[下载](https://drive.google.com/drive/folders/0B7riq_C8aslvbWJuMGhJRFBmSHM)  
-click [here](https://drive.google.com/drive/folders/0B7riq_C8aslvbWJuMGhJRFBmSHM) to download  
+网上资料，来源于[sampleRNN_ICLR2017](https://github.com/soroushmehr/sampleRNN_ICLR2017)，点击[下载](https://drive.google.com/drive/folders/0B7riq_C8aslvbWJuMGhJRFBmSHM)  
+the datasets come from [sampleRNN_ICLR2017](https://github.com/soroushmehr/sampleRNN_ICLR2017), click [here](https://drive.google.com/drive/folders/0B7riq_C8aslvbWJuMGhJRFBmSHM) to download  
 
 ### data preprocessing(数据预处理)
 ```python
