@@ -3,14 +3,15 @@ import numpy as np
 import os
 import scipy.io.wavfile as wav
 import random
-from wavenet2 import WaveNetModel
+from model import WaveNetModel
 
 trainTime = 100000
-batch_size = 32
+batch_size = 64
 rate_of_wav = 16000
 # len_of_data = rate_of_wav * 6
 len_of_data = 1024
-dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 filter_width = 2
 residual_channels = 32
 dilation_channels = 32
@@ -20,8 +21,8 @@ embedding_channels = 50
 use_biases = True
 l2_regularization_strength = 0
 learning_rate = 1e-3
-modelAdd = "WaveModel2/model.ckpt"
-fileAdd = "data.txt"
+modelAdd = "Model/model.ckpt"
+fileAdd = "../data.txt"
 isInit = True
 
 def initData(fileAdd):
@@ -44,7 +45,6 @@ def tranToDict(data,dict):
 def getData(data,length):
     index = random.randint(0, len(data)-1)
     start = random.randint(0,len(data[index])-length-2)
-    # channel = random.randint(0, 1)
     return data[index][start:start+length]
 
 def getBatchData(data,batch_size,length):

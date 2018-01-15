@@ -18,7 +18,6 @@ len_of_data = rate_of_wav * 5
 
 l2_regularization_strength = 0
 modelAdd = "Model/model.ckpt"
-saveAdd = "output.wav"
 test_data_add = "../music/music_test.npy"
 
 def _normalize(data):
@@ -33,8 +32,8 @@ def initData():
     eps = np.float64(1e-5)
     test_data *= (255. - eps)
     test_data += eps / 2
-    # testData = test_data[:,1:] - test_data[:,:-1] + 128
-    testData = test_data.astype(np.int32)
+    testData = test_data[:,1:] - test_data[:,:-1] + 128
+    testData = testData.astype(np.int32)
     return testData
 
 def sample(pre,n=5):
@@ -114,14 +113,7 @@ def main():
             n_rnn=n_rnn,
             seq_len=len_of_data,
             emb_size=emb_size)
-        # tf.get_variable_scope().reuse_variables()
 
-    # loss, accuracy, final_big_frame_state, final_frame_state = net.loss(
-    #     data_input,
-    #     net.big_cell.zero_state(net.batch_size, tf.float32),
-    #     net.cell.zero_state(net.batch_size, tf.float32),
-    #     l2_regularization_strength)
-    # print("done")
     infe_para = net.create_gen_wav_para()
 
     # Set up session

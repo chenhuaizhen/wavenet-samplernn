@@ -6,11 +6,12 @@ import random
 from wavenet import WaveNetModel
 
 trainTime = 100000
-batch_size = 32
+batch_size = 128
 rate_of_wav = 16000
 # len_of_data = rate_of_wav * 6
 len_of_data = 1024
-dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 filter_width = 2
 residual_channels = 32
 dilation_channels = 32

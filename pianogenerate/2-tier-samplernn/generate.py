@@ -17,7 +17,6 @@ len_of_data = rate_of_wav*5
 
 l2_regularization_strength = 0
 modelAdd = "Model/model.ckpt"
-saveAdd = "output.wav"
 test_data_add = "../music/music_test.npy"
 
 def _normalize(data):
