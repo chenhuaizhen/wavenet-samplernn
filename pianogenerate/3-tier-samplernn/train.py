@@ -5,7 +5,7 @@ import scipy.io.wavfile as wav
 import random
 from model import SampleRnnModel
 
-trainTime = 100000
+trainTime = 500
 batch_size = 32
 big_frame_size = 8
 frame_size = 2
@@ -13,7 +13,8 @@ q_levels = 256
 rnn_type = 'GRU'
 rnn_dim = 512
 n_rnn = 1
-len_of_data = 520
+len_of_data = 520*200
+len_of_bptt = 520
 emb_size = 256
 is_init = True
 
@@ -48,11 +49,11 @@ def initData():
     valid_data *= (255. - eps)
     valid_data += eps / 2
 
-    # trainData = train_data[:,1:] - train_data[:,:-1] + 128
-    # validData = valid_data[:,1:] - valid_data[:,:-1] + 128
+    trainData = train_data[:,1:] - train_data[:,:-1] + 128
+    validData = valid_data[:,1:] - valid_data[:,:-1] + 128
 
-    trainData = train_data.astype(np.int32)
-    validData = valid_data.astype(np.int32)
+    trainData = trainData.astype(np.int32)
+    validData = validData.astype(np.int32)
 
     return validData,trainData
 
@@ -68,7 +69,9 @@ def getBatchData(data,batch_size,length):
     batch_data = np.array(batch_data).reshape([batch_size,length,1])
     return batch_data
 
-data_input = tf.placeholder("float", shape=[None,len_of_data,1],name="X-input")
+data_input = tf.placeholder("float", shape=[None,len_of_bptt,1],name="X-input")
+big_cell_state = tf.placeholder("float",shape=[batch_size,rnn_dim])
+cell_state = tf.placeholder("float",shape=[batch_size,rnn_dim])
 
 def main():
     ValidData, TrainData = initData()
@@ -85,13 +88,20 @@ def main():
         rnn_type=rnn_type,
         dim=rnn_dim,
         n_rnn=n_rnn,
-        seq_len=len_of_data,
+        seq_len=len_of_bptt,
         emb_size=emb_size)
 
+    # if(n_rnn>1):
+    #     bigState = tf.unstack(big_cell_state, axis=0)
+    #     state = tf.unstack(cell_state, axis=0)
+    #     big_state = tuple(
+    #         [bigState[id] for id in range(n_rnn)]
+    #     )
+    #     _state = tuple(
+    #         [state[id] for id in range(n_rnn)]
+    #     )
     loss,accuracy,final_big_frame_state,final_frame_state = net.loss(
-                                                    data_input,
-                                                    net.big_cell.zero_state(net.batch_size, tf.float32),
-                                                    net.cell.zero_state(net.batch_size, tf.float32),
+                                                    data_input,big_cell_state,cell_state,
                                                     l2_regularization_strength)
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     trainable = tf.trainable_variables()
@@ -112,19 +122,34 @@ def main():
     ValidMax = 10000
     for step in range(trainTime):
         data = getBatchData(TrainData, batch_size, len_of_data)
-        _total_loss, _train_step, _acc = sess.run(
-            [loss, optim, accuracy],
-            feed_dict={
-                data_input: data
-            })
+        _final_big = np.zeros([batch_size,rnn_dim], dtype=np.float32)
+        _final_frame = np.zeros([batch_size,rnn_dim], dtype=np.float32)
+        index = 0
+        meanLoss = 0.
+        meanAcc = 0.
+        for x in range(len_of_data//len_of_bptt):
+            bpttData = data[:,index:index+len_of_bptt,:]
+            _total_loss, _train_step, _acc, _final_big, _final_frame = sess.run(
+                [loss, optim, accuracy, final_big_frame_state, final_frame_state],
+                feed_dict={
+                    data_input: bpttData,
+                    big_cell_state: _final_big,
+                    cell_state: _final_frame
+                })
+            print("SStep:", step, x,"loss:", _total_loss, "acc:", _acc)
+            index += len_of_bptt - big_frame_size
+            meanLoss += _total_loss
+            meanAcc += _acc
 
-        print("Step:", step, "loss:", _total_loss, "acc:", _acc)
-        if step % 1000 == 0:
-            data = getBatchData(ValidData, batch_size, len_of_data)
+        print("Step:", step, "loss:", meanLoss/(len_of_data/len_of_bptt), "acc:", meanAcc/(len_of_data/len_of_bptt))
+        if step % 5 == 0:
+            data = getBatchData(ValidData, batch_size, len_of_bptt)
             validLoss,validAcc = sess.run(
                 [loss,accuracy],
                 feed_dict={
-                    data_input: data
+                    data_input: data,
+                    big_cell_state: np.zeros([batch_size,rnn_dim], dtype=np.float32),
+                    cell_state: np.zeros([batch_size,rnn_dim], dtype=np.float32)
                 })
             if (validLoss < ValidMax):
                 ValidMax = validLoss

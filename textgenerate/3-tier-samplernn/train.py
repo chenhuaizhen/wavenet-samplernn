@@ -55,7 +55,7 @@ def getBatchData(data,batch_size,length):
 data_input = tf.placeholder("float", shape=[None,len_of_data,1],name="X-input")
 
 def main():
-    ValidData, TrainData = initData()
+    TrainData, dictionary = initData(fileAdd)
     print("data done")
     # Create coordinator.
     coord = tf.train.Coordinator()

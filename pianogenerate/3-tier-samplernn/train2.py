@@ -3,26 +3,27 @@ import numpy as np
 import os
 import scipy.io.wavfile as wav
 import random
-from model import SampleRnnModel
+from model2 import SampleRnnModel
 
-trainTime = 100000
-batch_size = 64
-frame_size = 16
+trainTime = 500
+batch_size = 32
+big_frame_size = 8
+frame_size = 2
 q_levels = 256
 rnn_type = 'GRU'
-rnn_dim = 1024
-n_rnn = 3
-len_of_data = 512*200
-len_of_bptt = 512
+rnn_dim = 512
+n_rnn = 1
+len_of_data = 520*200
+len_of_bptt = 520
 emb_size = 256
+is_init = True
 
 rate_of_wav = 16000
 l2_regularization_strength = 0
 learning_rate = 1e-3
-modelAdd = "Model/model.ckpt"
+modelAdd = "Model2/model.ckpt"
 train_data_add = "../music/music_train.npy"
 valid_data_add = "../music/music_valid.npy"
-is_init = True
 
 def _normalize(data):
     """To range [0., 1.]"""
@@ -48,11 +49,11 @@ def initData():
     valid_data *= (255. - eps)
     valid_data += eps / 2
 
-    trainData = train_data[:, 1:] - train_data[:, :-1] + 128
-    validData = valid_data[:,1:] - valid_data[:,:-1] + 128
+    # trainData = train_data[:,1:] - train_data[:,:-1] + 128
+    # validData = valid_data[:,1:] - valid_data[:,:-1] + 128
 
-    trainData = trainData.astype(np.int32)
-    validData = validData.astype(np.int32)
+    trainData = train_data.astype(np.int32)
+    validData = valid_data.astype(np.int32)
 
     return validData,trainData
 
@@ -69,7 +70,8 @@ def getBatchData(data,batch_size,length):
     return batch_data
 
 data_input = tf.placeholder("float", shape=[None,len_of_bptt,1],name="X-input")
-cell_state = tf.placeholder("float",shape=[n_rnn,batch_size,rnn_dim])
+big_cell_state = tf.placeholder("float",shape=[batch_size,rnn_dim])
+cell_state = tf.placeholder("float",shape=[batch_size,rnn_dim])
 
 def main():
     ValidData, TrainData = initData()
@@ -80,6 +82,7 @@ def main():
     # Create network.
     net = SampleRnnModel(
         batch_size=batch_size,
+        big_frame_size=big_frame_size,
         frame_size=frame_size,
         q_levels=q_levels,
         rnn_type=rnn_type,
@@ -88,14 +91,18 @@ def main():
         seq_len=len_of_bptt,
         emb_size=emb_size)
 
-    state = tf.unstack(cell_state, axis=0)
-    rnn_tuple_state = tuple(
-        [state[id] for id in range(n_rnn)]
-    )
-    loss,accuracy,final_frame_state = net.loss(data_input,
-                                               rnn_tuple_state,
-                                               l2_regularization_strength)
-
+    # if(n_rnn>1):
+    #     bigState = tf.unstack(big_cell_state, axis=0)
+    #     state = tf.unstack(cell_state, axis=0)
+    #     big_state = tuple(
+    #         [bigState[id] for id in range(n_rnn)]
+    #     )
+    #     _state = tuple(
+    #         [state[id] for id in range(n_rnn)]
+    #     )
+    loss,accuracy,final_big_frame_state,final_frame_state = net.loss(
+                                                    data_input,big_cell_state,cell_state,
+                                                    l2_regularization_strength)
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     trainable = tf.trainable_variables()
     optim = optimizer.minimize(loss, var_list=trainable)
@@ -107,7 +114,7 @@ def main():
 
     # Saver for storing checkpoints of the model.
     saver = tf.train.Saver()
-    if(not is_init):
+    if (not is_init):
         saver.restore(sess, modelAdd)
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
@@ -115,32 +122,34 @@ def main():
     ValidMax = 10000
     for step in range(trainTime):
         data = getBatchData(TrainData, batch_size, len_of_data)
-        _final_frame = np.zeros([n_rnn,batch_size,rnn_dim], dtype=np.float32)
+        _final_big = np.zeros([batch_size,rnn_dim], dtype=np.float32)
+        _final_frame = np.zeros([batch_size,rnn_dim], dtype=np.float32)
         index = 0
         meanLoss = 0.
         meanAcc = 0.
-        for x in range(len_of_data // len_of_bptt):
-            bpttData = data[:, index:index + len_of_bptt, :]
-            _total_loss, _train_step, _acc, _final_frame = sess.run(
-                [loss, optim, accuracy, final_frame_state],
+        for x in range(len_of_data//len_of_bptt):
+            bpttData = data[:,index:index+len_of_bptt,:]
+            _total_loss, _train_step, _acc, _final_big, _final_frame = sess.run(
+                [loss, optim, accuracy, final_big_frame_state, final_frame_state],
                 feed_dict={
                     data_input: bpttData,
+                    big_cell_state: _final_big,
                     cell_state: _final_frame
                 })
             print("SStep:", step, x,"loss:", _total_loss, "acc:", _acc)
-            index += len_of_bptt - frame_size
+            index += len_of_bptt - big_frame_size
             meanLoss += _total_loss
             meanAcc += _acc
 
-        print("Step:", step, "loss:", meanLoss / (len_of_data / len_of_bptt), "acc:",
-              meanAcc / (len_of_data / len_of_bptt))
+        print("Step:", step, "loss:", meanLoss/(len_of_data/len_of_bptt), "acc:", meanAcc/(len_of_data/len_of_bptt))
         if step % 5 == 0:
             data = getBatchData(ValidData, batch_size, len_of_bptt)
-            validLoss, validAcc = sess.run(
-                [loss, accuracy],
+            validLoss,validAcc = sess.run(
+                [loss,accuracy],
                 feed_dict={
                     data_input: data,
-                    cell_state: np.zeros([n_rnn,batch_size,rnn_dim], dtype=np.float32)
+                    big_cell_state: np.zeros([batch_size,rnn_dim], dtype=np.float32),
+                    cell_state: np.zeros([batch_size,rnn_dim], dtype=np.float32)
                 })
             if (validLoss < ValidMax):
                 ValidMax = validLoss

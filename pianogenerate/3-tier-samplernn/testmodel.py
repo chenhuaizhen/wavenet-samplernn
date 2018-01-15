@@ -125,7 +125,7 @@ class SampleRnnModel(object):
       '''Create a convolution filter variable with the specified name and shape,
       and initialize it using Xavier initialition.'''
       filter_initializer = tf.contrib.layers.xavier_initializer_conv2d()
-      sample_filter_shape = [self.emb_size*self.frame_size, 1, self.dim]
+      sample_filter_shape = [self.emb_size*2, 1, self.dim]
       sample_filter = tf.get_variable("sample_filter", sample_filter_shape,
     		initializer = filter_initializer)
       out = tf.nn.conv1d(sample_input_sequences, 
@@ -146,7 +146,7 @@ class SampleRnnModel(object):
       out = math_ops.matmul(out, sample_mlp2_weights)
       out = tf.nn.relu(out)
       out = math_ops.matmul(out, sample_mlp3_weights)
-      out = tf.reshape(out, [-1, sample_shap[1] / self.emb_size - self.frame_size + 1, self.q_levels])
+      out = tf.reshape(out, [-1, sample_shap[1]/self.emb_size - 1, self.q_levels])
       return out
   def _create_network_SampleRnn(self,
     		train_big_frame_state,
@@ -204,7 +204,7 @@ class SampleRnnModel(object):
 
 
         if l2_regularization_strength is None or l2_regularization_strength == 0:
-          return reduced_loss , accuracy, final_big_frame_state, final_frame_state
+          return reduced_loss , accuracy, final_big_frame_state, final_frame_state,tf.argmax(prediction, 1),tf.argmax(target_output_rnn, 1)
         else:
           # L2 regularization for all trainable parameters
           l2_loss = tf.add_n([tf.nn.l2_loss(v)
@@ -272,10 +272,3 @@ class SampleRnnModel(object):
         tf.nn.softmax(tf.cast(sample_out, tf.float64)), tf.float32)
 
     return infe_para
-
-  def getOutput(self,data_input):
-    self.encoded_input_rnn = tf.cast(data_input, tf.int32)
-    raw_output, _, _ = self._create_network_SampleRnn(self.big_initial_state, self.initial_state)
-    prediction = tf.reshape(raw_output, [-1, self.q_levels])
-    rel_output = tf.reshape(tf.argmax(prediction, 1), [self.batch_size, -1, 1])
-    return rel_output[:,-1,:]

@@ -8,9 +8,12 @@ from wavenet import WaveNetModel
 trainTime = 100000
 batch_size = 64
 rate_of_wav = 16000
-# len_of_data = rate_of_wav * 6
-len_of_data = 1024
+len_of_data = rate_of_wav * 5
+# len_of_data = 1024
 dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
               1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 filter_width = 2
 residual_channels = 32
@@ -49,11 +52,11 @@ def initData():
     valid_data *= (255. - eps)
     valid_data += eps / 2
 
-    # trainData = train_data[:,1:] - train_data[:,:-1] + 128
-    # validData = valid_data[:,1:] - valid_data[:,:-1] + 128
+    trainData = train_data[:,1:] - train_data[:,:-1] + 128
+    validData = valid_data[:,1:] - valid_data[:,:-1] + 128
 
-    tD = train_data.astype(np.int32)
-    vD = valid_data.astype(np.int32)
+    tD = trainData.astype(np.int32)
+    vD = validData.astype(np.int32)
 
     return vD,tD
 

@@ -5,7 +5,7 @@ import scipy.io.wavfile as wav
 import random
 from model import SampleRnnModel
 
-batch_size = 5
+batch_size = 10
 big_frame_size = 8
 frame_size = 2
 q_levels = 256
@@ -14,15 +14,38 @@ rnn_dim = 512
 n_rnn = 1
 emb_size = 256
 rate_of_wav = 16000
-len_of_data = int(rate_of_wav * 5)
+len_of_data = rate_of_wav * 5
 
 l2_regularization_strength = 0
 modelAdd = "Model/model.ckpt"
 saveAdd = "output.wav"
+test_data_add = "../music/music_test.npy"
 
-def generate_and_save_samples(net, infe_para, sess, length):
+def _normalize(data):
+    """To range [0., 1.]"""
+    data -= data.min(axis=1)[:, None]
+    data /= data.max(axis=1)[:, None]
+    return data
+
+def initData():
+    test_data = np.load(test_data_add)
+    test_data = _normalize(test_data)
+    eps = np.float64(1e-5)
+    test_data *= (255. - eps)
+    test_data += eps / 2
+    # testData = test_data[:,1:] - test_data[:,:-1] + 128
+    testData = test_data.astype(np.int32)
+    return testData
+
+def sample(pre,n=5):
+    pIndex = pre.argsort()[-n:]
+    pp = pre[pIndex]
+    pp = pp/sum(pp)
+    return np.random.choice(pIndex, p=pp)
+
+def generate_and_save_samples(start, net, infe_para, sess, length):
     samples = np.zeros((net.batch_size, length, 1), dtype='int32')
-    samples[:, :net.big_frame_size,:] = np.int32(net.q_levels//2)
+    samples[:, :net.big_frame_size,:] = start
 
     final_big_s,final_s = sess.run([net.big_initial_state,net.initial_state])
     big_frame_out = None
@@ -61,20 +84,22 @@ def generate_and_save_samples(net, infe_para, sess, length):
                     infe_para['infe_sample_inp'] : sample_input_sequences})
         sample_next_list = []
         for row in sample_out:
-            sample_next = np.random.choice(
-                np.arange(net.q_levels), p=row )
+            # sample_next = np.random.choice(
+            #     np.arange(net.q_levels), p=row)
+            sample_next = sample(row,n=5)
             sample_next_list.append(sample_next)
         samples[:, t] = np.array(sample_next_list).reshape([-1,1])
     for i in range(0, net.batch_size):
         temp = samples[i].astype(np.float32)
         temp = temp - 128.
-        sample[i] = temp * 100
+        samples[i] = temp*100
         # samples[i] = np.ceil(32768*np.sign(temp/128)*((np.power(256,np.abs(temp/128))-1)/255)).astype(np.int16)
     return samples
 
 data_input = tf.placeholder("float", shape=[None,len_of_data,1],name="X-input")
 
 def main():
+    testData = initData()
     # Create coordinator.
     coord = tf.train.Coordinator()
     with tf.variable_scope(tf.get_variable_scope()):
@@ -89,7 +114,7 @@ def main():
             n_rnn=n_rnn,
             seq_len=len_of_data,
             emb_size=emb_size)
-        tf.get_variable_scope().reuse_variables()
+        # tf.get_variable_scope().reuse_variables()
 
     # loss, accuracy, final_big_frame_state, final_frame_state = net.loss(
     #     data_input,
@@ -112,11 +137,11 @@ def main():
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     saver.restore(sess, modelAdd)
 
-
+    start = testData[:batch_size,:net.big_frame_size].reshape([batch_size,-1,1])
     print("Start generating.")
-    result = generate_and_save_samples(net, infe_para, sess, len_of_data)
+    result = generate_and_save_samples(start, net, infe_para, sess, len_of_data)
     for i in range(batch_size):
-        wav.write("output"+str(i)+".wav", rate_of_wav, result[i])
+        wav.write("output"+str(i)+".wav", rate_of_wav, result[i].astype(np.int16))
     print("Finished generating.")
     coord.request_stop()
     coord.join(threads)
