@@ -15,6 +15,7 @@ quantization_channels = 4118
 # embedding_channels = 50
 use_biases = True
 modelAdd = "Model3/model.ckpt"
+startAdd = "start.txt"
 saveAdd = "output.txt"
 saveDict = "dict.npy"
 saveReDict = "reDict.npy"
@@ -35,6 +36,15 @@ def tranToData(data,dict):
     for d in data:
         res += dict[d]
     return res
+
+def initStartCtx(fileAdd,dict):
+    output = []
+    with io.open(fileAdd,mode="r",encoding="utf-8") as file:
+        txt = file.read()
+        for t in txt:
+            output.append(dict[t])
+    output = np.array(output).astype(np.int32)
+    return output
 
 def main():
 
@@ -71,8 +81,9 @@ def main():
     decode = samples
 
     Dict, resDict = initDict(saveDict, saveReDict)
-
-    waveform = [3.]
+    startCtx = initStartCtx(startAdd, Dict)
+    startLen = len(startCtx)
+    waveform = [startCtx[0]]
 
     for step in range(len_of_data):
         outputs = [next_sample]
@@ -83,6 +94,8 @@ def main():
         prediction = sess.run(outputs, feed_dict={samples: window})[0]
         sample = np.random.choice(
             np.arange(quantization_channels), p=prediction)
+        if(step+1 < startLen):
+            sample = startCtx[step+1]
         waveform.append(sample)
 
         print(step,len_of_data,sample)
@@ -91,7 +104,7 @@ def main():
     print()
 
     # Save the result as a wav file.
-    out = sess.run(decode, feed_dict={samples: waveform})
+    out = waveform
     output = np.array(out).astype(np.int32)
     result = tranToData(output,resDict)
     # result = np.ceil(32768*np.sign(output/128)*((np.power(256,np.abs(output/128))-1)/255)).astype(np.int16)
