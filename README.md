@@ -51,18 +51,18 @@ the image below seperately means the loss curve about training with preprocessin
 ![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/2.jpg)
 
 ### samples(生成样本)
-3-tier-sampleRNN:  
+#### 3-tier-sampleRNN 
 [sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample1.wav)  
 [sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample2.wav)  
 [sample3](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/3-tier-samplernn/sample3.wav)  
 
-2-tier-sampleRNN:  
+#### 2-tier-sampleRNN
 [sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample1.wav)  
 [sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample2.wav)  
 [sample3](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample3.wav)  
 [sample4](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/2-tier-samplernn/sample4.wav)  
 
-wavenet:  
+#### wavenet
 [sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/wavenet/sample1.wav)  
 [sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/wavenet/sample2.wav)  
 
@@ -74,19 +74,19 @@ and I tried to use word embedding to decrease the size of input, the result like
 ![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/1.jpg)
 
 ### samples(生成样本)
-3-tier-sampleRNN:  
+#### 3-tier-sampleRNN
 the start text is "项少龙大叹倒霉."  
 [sample](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/textgenerate/3-tier-samplernn/sample.txt)  
 ```python
 项少龙大叹倒霉.希望自己的马车扑前.仍未跨过门.苦恼道.谁也很有关项少龙消息.吻了赵致奇道.董匡.你很快照人.不由暗笑.琴清狠狠瞪了滕翼正在等待会我们的心.我要助他亲热时.乌卓或陵见先生请教田单如此挡我生擒赵穆拍案叫绝.所以才一点点.脑海里必然谁敢自己的威风好吗.赵盘沉吟着道.不知道.你究竟有人同时软逐一喜胜.城阳夫人也在险地全力抵着后.拍案叫绝.国家人.纪嫣然回来见我项少龙苦笑道.鹿丹身穿的肖月潭显然.玉坠其境.同时既是如何破她的事.索性势.又泛着楼无心道.他起这点.本人明晚被秦国.赵雅不会加起大妹子休想有两人打消了好他有利的男人握进成来.与你商量清醒来.垂头道.你不是那么奇印的一声叫道.你心似抱步般锐后.说不定可谓出话来.赵雅等闻言欢人.你是多么气概不如.手法.所以他既有个问题.不过衣食指派几个人就知项少龙故意原好整以暇过去.她一件事.先是因我们一把长剑开承认道.你可包在心不自一人包括了浪是非常危险.以在此时他.虽及不上人的才女.平原林建立成对弄她的手势.摆明当不错了向赵穆和项少龙想起她还有甚么事了.她们到他若撤不尽.但赵雅卑响地看着他就在场上齐境单却追上我们将亦颇感触和拇指叫容.他就算了.赵穆摇头叹道.你当场鬼足了菜道
 ```
-2-tier-sampleRNN:  
+#### 2-tier-sampleRNN
 the start text is "小张和蛮牛与他们同属第七特种团队"  
 [sample](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/textgenerate/2-tier-samplernn/sample.txt)  
 ```python
 小张和蛮牛与他们同属第七特种团队之势.尤其一天气子任表示了一个钮子.反对所长.由调活一步出路长阶缩上他看.打量乌廷芳呢声看看了一理还是不大多对付赵穆.因为急白了大秘福地位对娘的神态.欣然道.君主师他会兼并毛.必敢立好.说王贲.不过群俊到形立着.寒焰熹感.才被剑鞘早给那脸前站地道.只求荆善乘机.答道.还在这里风斗礼活.泄漏出来的冰扣.项少龙感觉上次要问谁了.要找了你.最重了我吗.我休想第三个马材.本的魅力.项少龙却是一个宝刀.然后受的纤手出无出了半.充满着纤手而起.高起河胡.兼之过桑门机攻.但天罗片规被中牟茂矩.担缓晕过队事的迎来.项少龙叫头雾中金就有点执剑.雅夫人扮成多人奉陪他去前的得世.把地向主偷出两个糊涂.舒儿莫言八妹会在齐人被贪权的非甚么呢.我曾想真想通非徒.这刻.但项少龙心胸低声道.乌氏惈改变门而行实起了房的都可以干甚么惊少.足踝道.雅夫人可凭感愕然.项少龙心中.欣然道.以其实神项郎激的簇拥下了出奉衣装沫.她眼光不表起来.站在他挂绵退.柔船.项少龙想着地图席厉害.却欲弱分两晋.公平暗数.除了主席训字.国以部在搂过口.让鄙视在田单显然了.那一眼.若说王恩宠和.我就是异日子败害了.连昔年才伤三哥手.道.田建更可安.勾魂言趣道.项惘比香鼓般道.昨夜不带了一字.目四宣布往蒙了一个时辰.项少龙跳起来道.凤菲淡然离去.项少龙骇然道.上将候.本是说出来时二军.赵国都未撤底.此人冷静地上他肩天惊.有些孽宫.与项少龙早记着身体里.所有有单儿.对我就叫榻立了.这时两名武士的贵应任刺昏君.吕不韦身前.脸带项少龙百战.不讲后喁死了几个押时.坐下马儿挣扎只要巴夜的环镇剑滑.人.俏脸登时鼓响.可要塞握了赵穆.登时心中升着款喜插后.项少龙向坐满室走.囔道.少龙道.上我的乃俨望名的人.赵人低声道.魏贵惜对与成为这件.连那真.他们今晚后.神秘忆雷动刀的柔声道.项郸会杀死了.项少龙无情欲魂.闪闪道.项少龙心中一软.所有制得诸人族.尤其无人不能会阻.脸埋进嫪家.立即收买自己.环盈万精神中般来送大了风尘.项少龙坐入他唇背一眼.项少龙知道一旦有一个人如释呢.项少龙道.管不缚得见侯爷着.都担心不争追着这地步入房前挑手.让妾刀不望目.自主行说吧.她现在人家欢心之材.其中明白.教你把握还能公告吹书道.少龙剧明.其实唱是别馆经痕.只落开怀楼.将人剑术红的般间交待我好.没有人为齐王的滋味.众人忙道.不若了韩国.可住男下.教你知道无眼.赵妮电头大嚼.夫人想不
 ```
-wavenet:  
+#### wavenet
 the start text is "项少龙大叹倒霉.只想匆匆了事."  
 [sample](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/textgenerate/wavenet/sample.txt)    
 ```python

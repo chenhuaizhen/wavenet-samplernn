@@ -65,18 +65,10 @@ def main():
 
     next_sample = net.predict_proba_incremental(samples)
 
-    # sess.run(tf.global_variables_initializer())
     sess.run(net.init_ops)
 
-    # variables_to_restore = {
-    #     var.name[:-2]: var for var in tf.global_variables()
-    # }
-    # for v in variables_to_restore:
-    #     print(v)
-    # saver = tf.train.Saver(variables_to_restore)
     saver = tf.train.Saver()
     saver.restore(sess, modelAdd)
-    # sess.run(net.init_ops)
 
     decode = samples
 
@@ -100,15 +92,10 @@ def main():
 
         print(step,len_of_data,sample)
 
-    # Introduce a newline to clear the carriage return from the progress.
-    print()
-
-    # Save the result as a wav file.
+    # Save the result as a text file.
     out = waveform
     output = np.array(out).astype(np.int32)
     result = tranToData(output,resDict)
-    # result = np.ceil(32768*np.sign(output/128)*((np.power(256,np.abs(output/128))-1)/255)).astype(np.int16)
-    print("start^^^^^^^")
     with io.open(saveAdd,mode="a",encoding="utf-8") as file:
         file.write(result)
     print('Finished generating.')
