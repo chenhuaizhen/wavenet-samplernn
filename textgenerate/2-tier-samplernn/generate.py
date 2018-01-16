@@ -3,22 +3,50 @@ import numpy as np
 import os
 import scipy.io.wavfile as wav
 import random
+import io
 from model import SampleRnnModel
 
-batch_size = 5
+batch_size = 10
 frame_size = 16
-q_levels = 4119
+q_levels = 4118
 rnn_type = 'GRU'
 rnn_dim = 1024
 n_rnn = 3
-emb_size = 256
+emb_size = 50
 len_of_data = 1024
 
 l2_regularization_strength = 0
 modelAdd = "Model/model.ckpt"
 dataAdd = "../data.txt"
 startAdd = "start.txt"
-saveAdd = "output"
+saveDict = "dict.npy"
+saveReDict = "reDict.npy"
+
+def initDict(dictAdd,reDictAdd):
+    dict = {}
+    reDict = {}
+    d1 = np.load(dictAdd)
+    d2 = np.load(reDictAdd)
+    for i in d1.item():
+        dict[i] = d1.item().get(i)
+    for i in d2.item():
+        reDict[i] = d2.item().get(i)
+    return dict,reDict
+
+def tranToData(data,dict):
+    res = ""
+    for d in data:
+        res += dict[d]
+    return res
+
+def initStartCtx(fileAdd,dict):
+    output = []
+    with io.open(fileAdd,mode="r",encoding="utf-8") as file:
+        txt = file.read()
+        for t in txt:
+            output.append(dict[t])
+    output = np.array(output).astype(np.int32)
+    return output
 
 def generate_and_save_samples(startCtx, net, infe_para, sess, length):
     samples = np.zeros((net.batch_size, length, 1), dtype='int32')
@@ -69,7 +97,6 @@ def main():
             n_rnn=n_rnn,
             seq_len=len_of_data,
             emb_size=emb_size)
-        tf.get_variable_scope().reuse_variables()
 
     infe_para = net.create_gen_wav_para()
 
@@ -86,18 +113,16 @@ def main():
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     saver.restore(sess, modelAdd)
 
-    Dict, resDict = initDict(dataAdd)
+    Dict, resDict = initDict(saveDict,saveReDict)
     startCtx = initStartCtx(startAdd, Dict)
     start = np.tile(startCtx[:net.frame_size], [batch_size, 1]) \
         .reshape([batch_size, net.frame_size, 1])
+    print(start)
     print("Start generating.")
     result = generate_and_save_samples(start, net, infe_para, sess, len_of_data)
     result = np.reshape(result, [batch_size, len_of_data])
-    start = np.reshape(start, [batch_size, net.big_frame_size])
     for i in range(batch_size):
-        with open((saveAdd + str(i) + ".txt"), "a") as file:
-            for ii in start[i]:
-                file.write(resDict[ii])
+        with io.open(("output" + str(i) + ".txt"), mode="a", encoding="utf-8") as file:
             for ii in result[i]:
                 file.write(resDict[ii])
 

@@ -4,7 +4,7 @@ import os
 import scipy.io.wavfile as wav
 import random
 import io
-from model import WaveNetModel
+from wavenet import WaveNetModel
 
 trainTime = 100000
 batch_size = 64
@@ -18,11 +18,10 @@ residual_channels = 32
 dilation_channels = 32
 skip_channels = 512
 quantization_channels = 4118
-embedding_channels = 50
 use_biases = True
 l2_regularization_strength = 0
 learning_rate = 1e-3
-modelAdd = "Model/model.ckpt"
+modelAdd = "Model3/model.ckpt"
 fileAdd = "../data.txt"
 isInit = True
 saveDict = "dict.npy"
@@ -40,8 +39,8 @@ def initData(fileAdd):
                 reDict[index] = t
                 index += 1
         print(len(dict),len(reDict)) # 4118
-        np.save(saveReDict,reDict)
-        np.save(saveDict,dict)
+        # np.save(saveReDict,reDict)
+        # np.save(saveDict,dict)
         return txt,dict
 
 def tranToDict(data,dict):
@@ -80,7 +79,6 @@ def main():
         dilation_channels=dilation_channels,
         skip_channels=skip_channels,
         quantization_channels=quantization_channels,
-        embedding_channels=embedding_channels,
         use_biases=use_biases)
 
     loss, accuracy = net.loss(data_input, label_input, l2_regularization_strength)

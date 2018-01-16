@@ -1,15 +1,14 @@
 import tensorflow as tf
 import numpy as np
-import os
-import scipy.io.wavfile as wav
 import random
+import io
 from model import SampleRnnModel
 
 trainTime = 100000
 batch_size = 32
 big_frame_size = 8
 frame_size = 2
-q_levels = 4119
+q_levels = 4118
 rnn_type = 'GRU'
 rnn_dim = 512
 n_rnn = 1
@@ -22,16 +21,23 @@ l2_regularization_strength = 0
 learning_rate = 1e-3
 modelAdd = "Model/model.ckpt"
 fileAdd = "../data.txt"
+saveDict = "dict.npy"
+saveReDict = "reDict.npy"
 
 def initData(fileAdd):
     dict = {}
-    with open(fileAdd, "r") as file:
+    reDict = {}
+    with io.open(fileAdd, mode="r", encoding="utf-8") as file:
         txt = file.read()
         index = 0
         for t in txt:
             if (t not in dict):
                 dict[t] = index
+                reDict[index] = t
                 index += 1
+        print(len(dict),len(reDict)) # 4118
+        np.save(saveReDict,reDict)
+        np.save(saveDict,dict)
         return txt,dict
 
 def tranToDict(data,dict):
@@ -100,7 +106,7 @@ def main():
     for step in range(trainTime):
         for t in range(batch_size):
             start = TrainData.find(".", start + 1)
-            if (start + len_of_data > wholeLen):
+            if (start + len_of_data + 1 > wholeLen):
                 start = TrainData.find(".", 0)
             data[t, :] = tranToDict(TrainData[start + 1:start + len_of_data + 1], dictionary).reshape(
                 [len_of_data, 1]).astype(np.int32)
