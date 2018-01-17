@@ -10,12 +10,16 @@ samplernn:
 code:https://github.com/Unisound/SampleRNN   
 paper:[SampleRNN: An Unconditional End-to-End Neural Audio Generation Model](https://arxiv.org/abs/1612.07837)  
 
-## piano generate(钢琴乐生成)
-### datasets(数据来源)
+## Requirements(环境)
+python 2-7  
+tensorflow 1.3.0
+
+## Piano generate(钢琴乐生成)
+### Datasets(数据来源)
 网上资料，来源于[sampleRNN_ICLR2017](https://github.com/soroushmehr/sampleRNN_ICLR2017)，点击[下载](https://drive.google.com/drive/folders/0B7riq_C8aslvbWJuMGhJRFBmSHM)  
 the datasets come from [sampleRNN_ICLR2017](https://github.com/soroushmehr/sampleRNN_ICLR2017), click [here](https://drive.google.com/drive/folders/0B7riq_C8aslvbWJuMGhJRFBmSHM) to download  
 
-### data preprocessing(数据预处理)
+### Data preprocessing(数据预处理)
 ```python
 def _normalize(data):
     """To range [0., 1.]"""
@@ -38,19 +42,19 @@ there is one step(which is named for preprocessing in the following paragraphs) 
 ```python
 testData = test_data[:,1:] - test_data[:,:-1] + 128
 ```
-#### rationality(合理性)
+#### Rationality(合理性)
 下面两个波形图分别代表处理前后的音频，虽然有些微差别，但几乎一致  
 the following two graph represent the audio data before or after preprocessing, although have slight differences, they are nearly the same  
 ![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/1.jpg)
 
-#### availability(有效性)
+#### Availability(有效性)
 经过预处理的数据会更趋近统一，比如原先（……,12,13,14,15,……）与（……,19,20,21,22,……）不同，经过处理后会出现相同的片段（……,x,1,1,1,……）中的（1,1,1）  
 after preprocessing the data will tend to be unity, such as the orignal data part (……,12,13,14,15,……) is different from (……,19,20,21,22,……), but preprocessing will generate a common part (1,1,1)  
 下图分别是有预处理（蓝色）和没有预处理（黄色）的Loss曲线  
 the image below seperately means the loss curve about training with preprocessing(the blue one) or without preprocessing(the orange one)  
 ![image](https://github.com/chenhuaizhen/wavenet-samplernn/raw/master/image/2.jpg)
 
-### training(训练过程)
+### Training(训练过程)
 运行以下代码即可训练  
 just run the code like  
 ```python
@@ -99,7 +103,7 @@ skip_channels = 512
 quantization_channels = 256
 ```
 
-### samples(生成样本)
+### Samples(生成样本)
 运行以下代码即可生成  
 just run the code like  
 ```python
@@ -121,15 +125,15 @@ python generate.py
 [sample1](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/wavenet/sample1.wav)  
 [sample2](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/pianogenerate/wavenet/sample2.wav)  
 
-## text generate(文本生成)
-### datasets(数据来源)
+## Text generate(文本生成)
+### Datasets(数据来源)
 [寻秦记](https://github.com/chenhuaizhen/wavenet-samplernn/blob/master/textgenerate/data.txt)  
 
-### data preprocessing(数据预处理)
+### Data preprocessing(数据预处理)
 已将所有标点符号统一成'.'，训练过程中会自动生成"dict.npy"和"reDict.npy"保存字符与[0-4117]数组的映射关系    
 already unify all the punctuation into dot '.' and it will generate the 'dict.npy' and 'resDict.npy' automatically which save the one-hot word-embedding correlation during the training time  
 
-### training(训练过程)
+### Training(训练过程)
 运行以下代码即可训练  
 just run the code like  
 ```python
@@ -175,7 +179,7 @@ quantization_channels = 4118
 embedding_channels = 256
 ```
 
-### word-embedding(字嵌入)
+### Word-embedding(字嵌入)
 基于同样的原理，也可将文本信息用0-1数组表示进行训练，本次实验采用了《寻秦记》作为训练样本，除去特殊符号其共有4118种字，可用一个大小为4118的矩阵来表示其中的任意字。由于4118比之前的256大的多，所以可以先采用“字嵌入”的方式进行大小的缩减，对应代码在model.py  
 based on the same principle, wavenet or samplernn can be used to generate the text using the one-hot embedding  
 in this experiment, I use a Chinese novel named "Xun Qin Ji" as training data, it contains 4118 kinds of Chinese characters except some special notations, so the size of final input matrix is [4118], much larger than 256 in previous experiments  
@@ -204,7 +208,7 @@ def _create_embedding_layer(self, input_batch, in_channels, out_channels):
 但是效果并不明显  
 but the result was not better than that without using word-embedding  
 
-### samples(生成样本)
+### Samples(生成样本)
 运行以下代码即可生成  
 just run the code like  
 ```python
