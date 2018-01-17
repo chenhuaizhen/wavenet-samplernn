@@ -1,7 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import os
-import scipy.io.wavfile as wav
 import random
 import io
 from model import SampleRnnModel

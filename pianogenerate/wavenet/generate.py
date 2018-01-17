@@ -1,12 +1,15 @@
 import numpy as np
 import tensorflow as tf
 import scipy.io.wavfile as wav
-from wavenet import WaveNetModel
+from model import WaveNetModel
 
 batch_size = 1
 rate_of_wav = 16000
 len_of_data = rate_of_wav * 5
 dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
+              1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
               1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 filter_width = 2
 residual_channels = 32
@@ -41,22 +44,14 @@ def main():
 
     next_sample = net.predict_proba_incremental(samples)
 
-    # sess.run(tf.global_variables_initializer())
     sess.run(net.init_ops)
 
-    # variables_to_restore = {
-    #     var.name[:-2]: var for var in tf.global_variables()
-    # }
-    # for v in variables_to_restore:
-    #     print(v)
-    # saver = tf.train.Saver(variables_to_restore)
     saver = tf.train.Saver()
     saver.restore(sess, modelAdd)
-    # sess.run(net.init_ops)
 
     decode = samples
 
-    start = [32]
+    start = [128]
     waveform = [start]
 
     for step in range(len_of_data):
@@ -77,13 +72,11 @@ def main():
     print()
 
     # Save the result as a wav file.
-    # out = sess.run(decode, feed_dict={samples: waveform})
     out = np.array(waveform)
     output = out[1:].astype(np.float32)
     output = (output - 128) * 100
     result = output.astype(np.int16)
     # result = np.ceil(32768*np.sign(output/128)*((np.power(256,np.abs(output/128))-1)/255)).astype(np.int16)
-    print("start^^^^^^^")
     wav.write(saveAdd,rate_of_wav,result)
 
     print('Finished generating.')

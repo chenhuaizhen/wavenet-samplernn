@@ -2,7 +2,6 @@ import tensorflow as tf
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import embedding_ops
 
-
 class SampleRnnModel(object):
     def __init__(self, batch_size, frame_size,
                  q_levels, rnn_type, dim, n_rnn, seq_len, emb_size):

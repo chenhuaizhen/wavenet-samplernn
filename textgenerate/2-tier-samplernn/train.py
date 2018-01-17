@@ -1,7 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import os
-import scipy.io.wavfile as wav
 import random
 import io
 from model import SampleRnnModel
@@ -16,7 +14,6 @@ n_rnn = 3
 len_of_data = 1024
 emb_size = 50
 
-rate_of_wav = 16000
 l2_regularization_strength = 0
 learning_rate = 1e-3
 modelAdd = "Model/model.ckpt"
@@ -98,7 +95,6 @@ def main():
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
-    ValidMax = 10000
     wholeLen = len(TrainData)
     start = -1
     data = np.zeros([batch_size, len_of_data, 1])
@@ -118,17 +114,7 @@ def main():
 
         print("Step:", step, "loss:", _total_loss, "acc:", _acc)
         if step % 1000 == 0:
-            #     data = getBatchData(ValidData, batch_size, len_of_data)
-            #     validLoss,validAcc = sess.run(
-            #         [loss,accuracy],
-            #         feed_dict={
-            #             data_input: data
-            #         })
-            #     if (validLoss < ValidMax):
-            #         ValidMax = validLoss
             saver.save(sess, modelAdd)
-            #
-            #     print("ValidLoss:", validLoss, "ValidAcc:", validAcc)
 
     coord.request_stop()
     coord.join(threads)

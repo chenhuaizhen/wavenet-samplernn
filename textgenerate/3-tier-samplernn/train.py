@@ -99,7 +99,6 @@ def main():
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
-    ValidMax = 10000
     wholeLen = len(TrainData)
     start = -1
     data = np.zeros([batch_size, len_of_data, 1])
@@ -118,17 +117,7 @@ def main():
 
         print("Step:", step, "loss:", _total_loss, "acc:", _acc)
         if step % 1000 == 0:
-            # data = getBatchData(ValidData, batch_size, len_of_data)
-            # validLoss,validAcc = sess.run(
-            #     [loss,accuracy],
-            #     feed_dict={
-            #         data_input: data
-            #     })
-            # if (validLoss < ValidMax):
-            #     ValidMax = validLoss
             saver.save(sess, modelAdd)
-
-            # print("ValidLoss:", validLoss, "ValidAcc:", validAcc)
 
     coord.request_stop()
     coord.join(threads)

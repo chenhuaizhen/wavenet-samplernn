@@ -1,15 +1,11 @@
 import tensorflow as tf
 import numpy as np
-import os
-import scipy.io.wavfile as wav
 import random
 import io
 from model import WaveNetModel
 
 trainTime = 100000
 batch_size = 64
-rate_of_wav = 16000
-# len_of_data = rate_of_wav * 6
 len_of_data = 1024
 dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
               1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
@@ -18,7 +14,7 @@ residual_channels = 32
 dilation_channels = 32
 skip_channels = 512
 quantization_channels = 4118
-embedding_channels = 50
+embedding_channels = 256
 use_biases = True
 l2_regularization_strength = 0
 learning_rate = 1e-3
@@ -100,15 +96,8 @@ def main():
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
-    ValidMax = 10000
     wholeLen = len(TrainData)
     start = -1
-    if(not isInit):
-        for step in range(trainTime):
-            for t in range(batch_size):
-                start = TrainData.find(".", start + 1)
-                if (start + len_of_data + 2 > wholeLen):
-                    start = TrainData.find(".", 0)
 
     data = np.zeros([batch_size, len_of_data])
     label = np.zeros([batch_size, len_of_data])
@@ -130,17 +119,7 @@ def main():
 
         print("Step:", step, "loss:", _total_loss, "acc:", _acc)
         if step % 1000 == 0:
-        #     data = getBatchData(ValidData, batch_size, len_of_data)
-        #     validLoss,validAcc = sess.run(
-        #         [loss,accuracy],
-        #         feed_dict={
-        #             data_input: data
-        #         })
-        #     if (validLoss < ValidMax):
-        #         ValidMax = validLoss
             saver.save(sess, modelAdd)
-        #
-        #     print("ValidLoss:", validLoss, "ValidAcc:", validAcc)
 
     coord.request_stop()
     coord.join(threads)

@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import io
-from wavenet import WaveNetModel
+from model import WaveNetModel
 
 batch_size = 1
 len_of_data = 1024
@@ -12,9 +12,9 @@ residual_channels = 32
 dilation_channels = 32
 skip_channels = 512
 quantization_channels = 4118
-# embedding_channels = 50
+embedding_channels = 256
 use_biases = True
-modelAdd = "Model3/model.ckpt"
+modelAdd = "Model/model.ckpt"
 startAdd = "start.txt"
 saveAdd = "output.txt"
 saveDict = "dict.npy"
@@ -58,7 +58,7 @@ def main():
         dilation_channels=dilation_channels,
         skip_channels=skip_channels,
         quantization_channels=quantization_channels,
-        # embedding_channels=embedding_channels,
+        embedding_channels=embedding_channels,
         use_biases=use_biases)
 
     samples = tf.placeholder(tf.int32)

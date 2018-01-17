@@ -91,15 +91,6 @@ def main():
         seq_len=len_of_bptt,
         emb_size=emb_size)
 
-    # if(n_rnn>1):
-    #     bigState = tf.unstack(big_cell_state, axis=0)
-    #     state = tf.unstack(cell_state, axis=0)
-    #     big_state = tuple(
-    #         [bigState[id] for id in range(n_rnn)]
-    #     )
-    #     _state = tuple(
-    #         [state[id] for id in range(n_rnn)]
-    #     )
     loss,accuracy,final_big_frame_state,final_frame_state = net.loss(
                                                     data_input,big_cell_state,cell_state,
                                                     l2_regularization_strength)

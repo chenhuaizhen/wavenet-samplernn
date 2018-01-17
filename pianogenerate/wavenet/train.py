@@ -3,13 +3,12 @@ import numpy as np
 import os
 import scipy.io.wavfile as wav
 import random
-from wavenet import WaveNetModel
+from model import WaveNetModel
 
 trainTime = 100000
-batch_size = 64
+batch_size = 2
 rate_of_wav = 16000
 len_of_data = rate_of_wav * 5
-# len_of_data = 1024
 dilations = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
               1, 2, 4, 8, 16, 32, 64, 128, 256, 512,
               1, 2, 4, 8, 16, 32, 64, 128, 256, 512,

@@ -251,6 +251,12 @@ class WaveNetModel(object):
 
         return skip_contribution, input_batch + transformed
 
+    def _generate_embedding_layer(self, input_batch, in_channels, out_channels):
+        with tf.name_scope('word_embedding'):
+            weights_filter = self.variables['word_embedding']['filter']
+            encoded = tf.matmul(input_batch, weights_filter)
+            return encoded
+
     def _generator_conv(self, input_batch, state_batch, weights):
         '''Perform convolution for a single convolutional processing step.'''
         # TODO generalize to filter_width > 2
@@ -309,7 +315,7 @@ class WaveNetModel(object):
 
         # Pre-process the input with a regular convolution
         current_layer = self._create_causal_layer(
-            current_layer, self.quantization_channels, self.residual_channels)
+            current_layer, self.embedding_channels, self.residual_channels)
 
         # Add all defined dilation layers.
         with tf.name_scope('dilated_stack'):
@@ -349,25 +355,24 @@ class WaveNetModel(object):
         init_ops = []
         push_ops = []
         outputs = []
-        current_layer = input_batch
+        # current_layer = input_batch
+        current_layer = self._generate_embedding_layer(
+            input_batch, self.quantization_channels, self.embedding_channels)
 
         q = tf.FIFOQueue(
             1,
             dtypes=tf.float32,
-            shapes=(self.batch_size, self.quantization_channels))
+            shapes=(self.batch_size, self.embedding_channels))
         init = q.enqueue_many(
-            tf.zeros((1, self.batch_size, self.quantization_channels)))
+            tf.zeros((1,self.batch_size, self.embedding_channels)))
 
         current_state = q.dequeue()
         push = q.enqueue([current_layer])
         init_ops.append(init)
         push_ops.append(push)
 
-        current_layer = self._create_embedding_layer(
-            current_layer, self.quantization_channels, self.embedding_channels)
-
         current_layer = self._generator_causal_layer(
-            current_layer, current_state, self.quantization_channels,
+            current_layer, current_state, self.embedding_channels,
             self.residual_channels)
 
         # Add all defined dilation layers.
